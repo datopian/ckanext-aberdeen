@@ -1,0 +1,17 @@
+LICENSE
+MANIFEST.in
+README.rst
+requirements.txt
+setup.cfg
+setup.py
+ckanext/__init__.py
+ckanext/aberdeen/__init__.py
+ckanext/aberdeen/plugin.py
+ckanext/aberdeen/tests/__init__.py
+ckanext/aberdeen/tests/test_plugin.py
+ckanext_aberdeen.egg-info/PKG-INFO
+ckanext_aberdeen.egg-info/SOURCES.txt
+ckanext_aberdeen.egg-info/dependency_links.txt
+ckanext_aberdeen.egg-info/entry_points.txt
+ckanext_aberdeen.egg-info/namespace_packages.txt
+ckanext_aberdeen.egg-info/top_level.txt

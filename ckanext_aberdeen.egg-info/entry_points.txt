@@ -1,0 +1,7 @@
+
+        [ckan.plugins]
+        aberdeen=ckanext.aberdeen.plugin:AberdeenPlugin
+
+        [babel.extractors]
+        ckan = ckan.lib.extract:extract_ckan
+    
