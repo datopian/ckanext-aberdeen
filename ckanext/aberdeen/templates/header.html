@@ -1,0 +1,41 @@
+{% ckan_extends %}
+
+{% block header_wrapper %}
+  {% block header_account %}
+    {{ super() }}
+  {% endblock %}
+
+  <header class="navbar navbar-static-top masthead">
+    {% block header_debug %}
+      {{ super() }}
+    {% endblock %}
+    <div class="container-fluid">
+      {# The .header-image class hides the main text and uses image replacement for the title #}
+      <div class="{{ g.header_class }} pull-left">
+        {% block header_logo %} {{ super() }} {% endblock %}
+      </div>
+
+      <div class="pull-right">
+        {% if app_globals.twitter_username %}
+          {% snippet 'snippets/twitter_follow_button.html' %}
+        {% endif %}
+        {% block header_site_search %}
+          {{ super() }}
+        {% endblock %}
+        <button data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar" type="button">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-main">
+    <div class="container-fluid">
+      <div class="clearfix nav-collapse collapse">
+        {% block header_site_navigation %} {{ super() }} {% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

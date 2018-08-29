@@ -1,0 +1,303 @@
+/* Open Sans from Google Fonts */
+@import 'https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700,700i';
+/* Theme LESS assets */
+/* Colors */
+/* Fonts */
+/* Responsive */
+/* News */
+/* Hero */
+/* Grid */
+/* Navigation */
+/* Navigation */
+.inputs-style {
+  border-color: #caced7;
+}
+.inputs-style:focus {
+  border-color: #E02E26;
+}
+.hero {
+  background-color: #000000;
+  background-image: url("../../../../base/images/background-tile.jpg");
+}
+.homepage .hero {
+  background-position-y: 37.2%;
+}
+.hero-search .image-credit {
+  color: #ffffff;
+}
+body {
+  background: #ffffff;
+  font-family: 'Open Sans', sans-serif;
+}
+body a {
+  color: #E02E26;
+}
+.site-footer {
+  background: #4b5363;
+}
+.homepage .module-search .module-content {
+  background-color: #E02E26;
+}
+.homepage .module-search .tags {
+  background-color: #000000;
+}
+[role=main]:not(.hero),
+.main:not(.hero) {
+  background: #ffffff;
+}
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus {
+  border-color: #E02E26;
+}
+.pill {
+  background-color: #6d778a;
+}
+.media-grid {
+  background-color: #f6f6f8;
+  border-color: #e1e3e9;
+}
+.account-masthead {
+  background-color: #4b5363;
+}
+.account-masthead .account .notifications a span.badge {
+  background-color: #E02E26;
+}
+.account-masthead .account ul li a {
+  color: #caced7;
+}
+.account-masthead .account ul li a:hover {
+  background-color: #4b5363;
+}
+.masthead {
+  background: #ffffff;
+}
+.masthead a {
+  color: #E02E26;
+}
+.masthead .btn-navbar {
+  background-color: #6d778a;
+}
+.masthead .btn-navbar:hover,
+.masthead .btn-navbar:focus {
+  background-color: #E02E26;
+}
+.masthead input[type="text"] {
+  border-color: #caced7;
+}
+.masthead input[type="text"]:focus {
+  border-color: #E02E26;
+}
+.language-picker li.active a {
+  color: #ffffff;
+}
+.language-picker li.active a,
+.language-picker li.active a:hover {
+  background-color: #000000;
+}
+.language-picker li a {
+  color: #6d778a;
+  background-color: #caced7;
+}
+.language-picker li a:hover {
+  color: #ffffff;
+  background-color: #1a1a1a;
+}
+.btn-primary {
+  background-color: #E02E26;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary.disabled,
+.btn-primary[disabled] {
+  background-color: #b9211a;
+}
+.nav-main {
+  background-color: #E02E26;
+}
+.nav-main .nav-collapse .nav > li a {
+  color: #ffffff;
+}
+.nav-main .nav a:hover,
+.nav-main .nav a:focus {
+  color: #ffffff;
+  background-color: #000000;
+}
+.nav-main .nav a:hover:before,
+.nav-main .nav a:focus:before {
+  border-top: 17px solid #ffffff;
+  border-bottom: 17px solid #ffffff;
+  border-left: 6px solid #000000;
+}
+.nav-main .nav .active a {
+  color: #ffffff;
+  background-color: #000000;
+}
+.nav-main .nav .active a:before {
+  border-top: 17px solid #ffffff;
+  border-bottom: 17px solid #ffffff;
+  border-left: 6px solid #000000;
+}
+.secondary .nav > li a:hover {
+  border-radius: 15px;
+}
+.secondary .nav > li a:hover,
+.secondary .nav > li a:focus {
+  color: #ffffff;
+  background-color: #6d778a;
+}
+.secondary .nav > li a:hover:before,
+.secondary .nav > li a:focus:before {
+  border-top: 17px solid #ffffff;
+  border-bottom: 17px solid #ffffff;
+  border-left: 6px solid #6d778a;
+}
+.nav-item.active a,
+.nav-aside.active a,
+.nav-item.active a:hover,
+.nav-aside.active a:hover,
+.nav-item.active a:focus,
+.nav-aside.active a:focus {
+  color: #ffffff;
+  background-color: #6d778a;
+}
+.nav-item.active a:before,
+.nav-aside.active a:before,
+.nav-item.active a:hover:before,
+.nav-aside.active a:hover:before,
+.nav-item.active a:focus:before,
+.nav-aside.active a:focus:before {
+  border-top: 17px solid #ffffff;
+  border-bottom: 17px solid #ffffff;
+  border-left: 6px solid #6d778a;
+}
+/* All modules */
+.module-heading {
+  background-color: #e1e3e9;
+}
+/* Search */
+.module-hero-search .search-input input {
+  border-color: #000000;
+}
+.module-hero-search .search-input input:focus {
+  border-color: #E02E26;
+}
+.module-hero-search .search-input button i {
+  color: #000000;
+}
+/* Topics */
+.module-topics a {
+  color: #000000;
+}
+.news-header {
+  background-color: #e1e3e9;
+}
+.news-header .btn:hover {
+  background-color: #ffffff;
+}
+.news-item {
+  color: #4b5363;
+  border: 1px solid #e1e3e9;
+}
+.news-item:hover,
+.news-item:focus {
+  box-shadow: 0 0 30px #caced7;
+  color: #4b5363;
+}
+.add-dataset-modal {
+  position: fixed;
+  left: 50%;
+  top: 20%;
+  transform: translateX(-50%);
+  z-index: 1050;
+  display: none;
+}
+.add-dataset-modal-box {
+  display: table-cell;
+  background-color: #ffffff;
+  border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  background-clip: padding-box;
+  outline: none;
+  text-align: center;
+}
+.add-dataset-modal-description {
+  margin-top: 30px;
+}
+.add-dataset-modal-description p {
+  font-weight: bold;
+}
+.add-dataset-modal-description ul {
+  text-align: left;
+}
+.add-dataset-modal .close {
+  font-size: 35px;
+  color: white;
+  position: relative;
+  top: -32px;
+}
+.add-dataset-modal-backdrop {
+  display: none;
+}
+#dataset-resources {
+  border: 1px solid #dddddd;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+#dataset-resources h3,
+#dataset-resources .search-form {
+  display: inline;
+}
+.resource-list {
+  margin-top: 15px;
+}
+.search-giant.search-input button i:hover {
+  color: #E02E26;
+}
+.simple-input .field .btn-search:hover {
+  color: #E02E26;
+}
+#field-user-search {
+  border-color: #caced7;
+}
+.search-icon-hover {
+  color: #E02E26;
+}
+.organization-logos {
+  background-color: #e1e3e9;
+}
+.organization-logos figure figcaption {
+  color: #6d778a;
+}
+.js .image-upload input[type=file] {
+  cursor: pointer;
+  position: absolute;
+  z-index: 1;
+  opacity: 0;
+}
+.nav-tabs .fa:last-child,
+.module-heading .fa:last-child,
+.btn .fa:last-child {
+  margin-right: 3px;
+}
+.resource-tracking-summary {
+  margin-top: -20px !important;
+  border-top: none !important;
+}
+/*# sourceMappingURL=aberdeen.css.map */

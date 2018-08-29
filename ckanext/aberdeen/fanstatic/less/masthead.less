@@ -1,0 +1,66 @@
+.account-masthead {
+  background-color: @color-neutral-dark;
+  .account {
+    .notifications {
+      a {
+        span {
+          &.badge {
+            background-color: @color-primary;
+          }
+        }
+      }
+    }
+    ul {
+      li {
+        a {
+          color: @color-neutral-light;
+          &:hover {
+            background-color: @color-neutral-dark;
+          }
+        }
+      }
+    }
+  }
+}
+
+.masthead {
+  background: @color-white;
+  a {
+    color: @color-primary;
+  }
+  .btn-navbar {
+    background-color: @color-neutral;
+    &:hover,
+    &:focus {
+      background-color: @color-primary;
+    }
+  }
+  input[type="text"]{
+    border-color: @color-neutral-light;
+    &:focus{
+      border-color: @color-primary;
+    }
+  }
+}
+
+.language-picker {
+  li {
+    &.active {
+      a {
+        color: @color-white;
+        &,
+        &:hover{
+          background-color: @color-secondary;
+        }
+      }
+    }
+    a {
+      &:hover {
+        color: @color-white;
+        background-color: lighten(@color-secondary, 10%);
+      }
+      color: @color-neutral;
+      background-color: @color-neutral-light;
+    }
+  }
+}

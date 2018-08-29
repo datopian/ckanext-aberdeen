@@ -1,0 +1,54 @@
+.nav-main {
+  background-color: @color-primary;
+  .nav-collapse {
+    .nav {
+      >li {
+        a {
+          color: @color-white;
+        }
+      }
+    }
+  }
+  .nav {
+    a {
+      &:hover,
+      &:focus {
+        .nav-pills-bg-color(@color-secondary);
+      }
+    }
+    .active {
+      a {
+        .nav-pills-bg-color(@color-secondary);
+      }
+    }
+  }
+}
+
+.secondary {
+  .nav {
+    >li {
+      a {
+        &:hover {
+          border-radius: @grid-gutter-width/2;
+        }
+        &:hover,
+        &:focus {
+          .nav-pills-bg-color;
+        }
+      }
+    }
+  }
+}
+
+.nav-item,
+.nav-aside {
+  &.active {
+    a {
+      &,
+      &:hover,
+      &:focus {
+        .nav-pills-bg-color;
+      }
+    }
+  }
+}

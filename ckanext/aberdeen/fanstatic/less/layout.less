@@ -1,0 +1,59 @@
+body {
+  background: @color-white;
+  font-family: @baseFontFamily;
+
+  a{
+    color: @color-primary;
+  }
+}
+
+.site-footer {
+  background: @color-neutral-dark;
+}
+
+.homepage {
+  .module-search {
+    .module-content {
+      background-color: @color-primary;
+    }
+    .tags {
+      background-color: @color-secondary;
+    }
+  }
+}
+
+[role=main],
+.main {
+  &:not(.hero) {
+    background: @color-white;
+  }
+}
+
+textarea,
+input[type="text"],
+input[type="password"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="month"],
+input[type="time"],
+input[type="week"],
+input[type="number"],
+input[type="email"],
+input[type="url"],
+input[type="search"],
+input[type="tel"],
+input[type="color"]{
+  &:focus{
+    border-color: @color-primary;
+  }
+}
+
+.pill{
+  background-color: @color-neutral;
+}
+
+.media-grid{
+  background-color: @color-neutral-light-3x;
+  border-color: @color-neutral-light-2x;
+}

@@ -10,11 +10,11 @@ Description: .. You should enable this project on travis-ci.org and coveralls.io
            these badges work. The necessary Travis and Coverage config files have been
            generated for you.
         
-        .. image:: https://travis-ci.org/goranmaxim/ckanext-aberdeen.svg?branch=master
-            :target: https://travis-ci.org/goranmaxim/ckanext-aberdeen
+        .. image:: https://travis-ci.org/ViderumGlobal/ckanext-aberdeen.svg?branch=master
+            :target: https://travis-ci.org/ViderumGlobal/ckanext-aberdeen
         
-        .. image:: https://coveralls.io/repos/goranmaxim/ckanext-aberdeen/badge.svg
-          :target: https://coveralls.io/r/goranmaxim/ckanext-aberdeen
+        .. image:: https://coveralls.io/repos/ViderumGlobal/ckanext-aberdeen/badge.svg
+          :target: https://coveralls.io/r/ViderumGlobal/ckanext-aberdeen
         
         .. image:: https://pypip.in/download/ckanext-aberdeen/badge.svg
             :target: https://pypi.python.org/pypi//ckanext-aberdeen/
@@ -98,7 +98,7 @@ Description: .. You should enable this project on travis-ci.org and coveralls.io
         To install ckanext-aberdeen for development, activate your CKAN virtualenv and
         do::
         
-            git clone https://github.com/goranmaxim/ckanext-aberdeen.git
+            git clone https://github.com/ViderumGlobal/ckanext-aberdeen.git
             cd ckanext-aberdeen
             python setup.py develop
             pip install -r dev-requirements.txt

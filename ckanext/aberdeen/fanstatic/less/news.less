@@ -1,0 +1,18 @@
+.news-header {
+  background-color: @color-neutral-light-2x;
+  .btn {
+    &:hover {
+      background-color: @color-white;
+    }
+  }
+}
+
+.news-item {
+  color: @color-neutral-dark;
+  border: 1px solid @color-neutral-light-2x;
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 @news-item-shadow @color-neutral-light;
+    color: @color-neutral-dark;
+  }
+}

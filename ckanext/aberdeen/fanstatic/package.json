@@ -1,0 +1,11 @@
+{
+  "name": "ckanext-aberdeen",
+  "scripts": {
+    "watch": "less-watch-compiler less/ css/ aberdeen.less",
+    "less": "./node_modules/.bin/lessc less/aberdeen.less css/aberdeen.css"
+  },
+  "devDependencies": {
+    "less": "^2.7.2",
+    "less-watch-compiler": "^1.6.7"
+  }
+}
