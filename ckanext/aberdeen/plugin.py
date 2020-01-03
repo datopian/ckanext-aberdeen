@@ -24,5 +24,7 @@ class AberdeenPlugin(plugins.SingletonPlugin):
             'organization_delete': actions.organization_delete,
             'group_delete': actions.group_delete,
             'organization_purge': actions.organization_purge,
-            'group_purge': actions.group_purge
+            'group_purge': actions.group_purge,
+            'inactive_users': actions.inactive_users,
+            'send_inactive_users_email': actions.send_inactive_users_email
         }

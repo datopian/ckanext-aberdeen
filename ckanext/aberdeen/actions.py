@@ -1,5 +1,9 @@
 import logging
-
+import requests
+import json
+from datetime import datetime, timedelta
+import threading
+import time
 import sqlalchemy as sqla
 
 import ckan.lib.jobs as jobs
@@ -8,6 +12,8 @@ import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
+import ckan.plugins.toolkit as toolkit
+from ckan.lib import mailer
 
 from ckan.common import _
 
@@ -179,3 +185,72 @@ def group_purge(context, data_dict):
 
 def organization_purge(context, data_dict):
     return _group_or_org_purge(context, data_dict, is_org=True)
+
+
+@toolkit.side_effect_free
+def inactive_users(context, data_dict):
+    #if not authz.is_sysadmin(toolkit.c.user):
+    #    log.error('-------------------')
+    #    toolkit.abort(403, _('You are not authorized to access this list'))
+
+    #user_list = ckan.logic.get_action('user_list')(context, data_dict)
+    user_list = json.loads(requests.get(
+        ('https://data.aberdeencity.gov.uk/api/3/action/user_list'),
+        headers={'Authorization': ''}
+        ).content.decode('utf-8'))['result']
+
+    inactive_users = []
+    threads = []
+    data_dict['limit'] = 1
+
+    times = []
+
+    def user_activity_threads(user, inactive_users):
+        user_info = json.loads(requests.get(
+            ('https://data.aberdeencity.gov.uk/api/3/action/user_activity_list?'
+             'limit=1&id={}').format(user['id']),
+            headers={'Authorization': ''}
+            ).content.decode('utf-8'))['result']
+        log.error(user_info)
+
+        #data_dict['id'] = user['id']
+        #user_info = ckan.logic.get_action(
+        #    'user_activity_list')(context, data_dict)
+        #log.error(user_info)
+
+        if not user_info:
+            return
+        times.append(user_info[0]['timestamp'])
+
+        timestamp = datetime.strptime(
+            user_info[0]['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
+
+        if timestamp < datetime.today() - timedelta(days=365):
+            user['last_activity'] = user_info[0]['timestamp']
+            inactive_users.append(user)
+        return inactive_users
+
+    for user in user_list:
+        thread = threading.Thread(
+            target=user_activity_threads, args=(user, inactive_users))
+        threads.append(thread)
+        thread.start()
+
+    for user, thread in enumerate(threads):
+        thread.join()
+
+    return inactive_users
+
+
+@toolkit.side_effect_free
+def send_inactive_users_email(context, data_dict):
+    log.error('it is working!!!!!!!!!!!!!!!!!!!!')
+
+    inactive_users = toolkit.get_action('inactive_users')(context, data_dict)
+    inactive_users = '\n\n'.join(
+        '\n'.join(info + ': ' + str(user_info[info]) for info in user_info)
+        for user_info in inactive_users)
+
+    mailer.mail_recipient(
+        toolkit.c.user, 'dareislowdown@gmail.com',
+        'Inactive user list', inactive_users)
