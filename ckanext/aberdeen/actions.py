@@ -189,16 +189,11 @@ def organization_purge(context, data_dict):
 
 @toolkit.side_effect_free
 def inactive_users(context, data_dict):
-    #if not authz.is_sysadmin(toolkit.c.user):
-    #    log.error('-------------------')
-    #    toolkit.abort(403, _('You are not authorized to access this list'))
+    '''Returns a list of inactive users for the last year'''
+    if not authz.is_sysadmin(toolkit.c.user):
+        toolkit.abort(403, _('You are not authorized to access this list'))
 
-    #user_list = ckan.logic.get_action('user_list')(context, data_dict)
-    user_list = json.loads(requests.get(
-        ('https://data.aberdeencity.gov.uk/api/3/action/user_list'),
-        headers={'Authorization': ''}
-        ).content.decode('utf-8'))['result']
-
+    user_list = ckan.logic.get_action('user_list')(context, data_dict)
     inactive_users = []
     threads = []
     data_dict['limit'] = 1
@@ -206,20 +201,13 @@ def inactive_users(context, data_dict):
     times = []
 
     def user_activity_threads(user, inactive_users):
-        user_info = json.loads(requests.get(
-            ('https://data.aberdeencity.gov.uk/api/3/action/user_activity_list?'
-             'limit=1&id={}').format(user['id']),
-            headers={'Authorization': ''}
-            ).content.decode('utf-8'))['result']
-        log.error(user_info)
-
-        #data_dict['id'] = user['id']
-        #user_info = ckan.logic.get_action(
-        #    'user_activity_list')(context, data_dict)
-        #log.error(user_info)
+        data_dict['id'] = user['id']
+        user_info = ckan.logic.get_action(
+            'user_activity_list')(context, data_dict)
 
         if not user_info:
             return
+
         times.append(user_info[0]['timestamp'])
 
         timestamp = datetime.strptime(
@@ -244,13 +232,16 @@ def inactive_users(context, data_dict):
 
 @toolkit.side_effect_free
 def send_inactive_users_email(context, data_dict):
-    log.error('it is working!!!!!!!!!!!!!!!!!!!!')
-
+    user_list = ckan.logic.get_action('user_list')(context, data_dict)
+    email_list = [user['email'] for user in user_list if user['sysadmin'] is True]
     inactive_users = toolkit.get_action('inactive_users')(context, data_dict)
     inactive_users = '\n\n'.join(
         '\n'.join(info + ': ' + str(user_info[info]) for info in user_info)
         for user_info in inactive_users)
+    log.error(inactive_users)
 
-    mailer.mail_recipient(
-        toolkit.c.user, 'dareislowdown@gmail.com',
-        'Inactive user list', inactive_users)
+    for email in email_list:
+        if email:
+            mailer.mail_recipient(
+                'System administrator', email,
+                'Inactive users list - weekly update', inactive_users)
