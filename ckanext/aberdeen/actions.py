@@ -1,9 +1,6 @@
 import logging
-import requests
-import json
 from datetime import datetime, timedelta
 import threading
-import time
 import sqlalchemy as sqla
 
 import ckan.lib.jobs as jobs
@@ -189,17 +186,19 @@ def organization_purge(context, data_dict):
 
 @toolkit.side_effect_free
 def inactive_users(context, data_dict):
-    '''Returns a list of inactive users for the last year'''
+    '''Returns a list of users that have been inactive for the last year'''
+
     if not authz.is_sysadmin(toolkit.c.user):
         toolkit.abort(403, _('You are not authorized to access this list'))
 
     user_list = ckan.logic.get_action('user_list')(context, data_dict)
     inactive_users = []
     threads = []
+
+    # Limit the user activity results to the most recent event
     data_dict['limit'] = 1
 
-    times = []
-
+    # Use threading to speed up the inactive user collection
     def user_activity_threads(user, inactive_users):
         data_dict['id'] = user['id']
         user_info = ckan.logic.get_action(
@@ -208,14 +207,13 @@ def inactive_users(context, data_dict):
         if not user_info:
             return
 
-        times.append(user_info[0]['timestamp'])
-
         timestamp = datetime.strptime(
             user_info[0]['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
 
-        if timestamp < datetime.today() - timedelta(days=365):
+        if timestamp < datetime.today() - timedelta(days=0):
             user['last_activity'] = user_info[0]['timestamp']
             inactive_users.append(user)
+
         return inactive_users
 
     for user in user_list:
@@ -232,16 +230,21 @@ def inactive_users(context, data_dict):
 
 @toolkit.side_effect_free
 def send_inactive_users_email(context, data_dict):
+    '''Sends the inactive users list to all site system administrators'''
+
     user_list = ckan.logic.get_action('user_list')(context, data_dict)
-    email_list = [user['email'] for user in user_list if user['sysadmin'] is True]
+    admin_email_list = [
+        user['email'] for user in user_list if user['sysadmin'] is True]
+
     inactive_users = toolkit.get_action('inactive_users')(context, data_dict)
+
+    # Format the inactive users list for better readability in an email
     inactive_users = '\n\n'.join(
         '\n'.join(info + ': ' + str(user_info[info]) for info in user_info)
         for user_info in inactive_users)
-    log.error(inactive_users)
 
-    for email in email_list:
-        if email:
+    for admin_email in admin_email_list:
+        if admin_email:
             mailer.mail_recipient(
-                'System administrator', email,
+                'System administrator', admin_email,
                 'Inactive users list - weekly update', inactive_users)
