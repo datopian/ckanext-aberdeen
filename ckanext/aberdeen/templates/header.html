@@ -34,7 +34,17 @@
   <div class="nav-main">
     <div class="container-fluid">
       <div class="clearfix nav-collapse collapse">
-        {% block header_site_navigation %} {{ super() }} {% endblock %}
+        {% block header_site_navigation %}
+          <nav class="section navigation">
+            <ul class="nav nav-pills">
+              {% block header_site_navigation_tabs %}
+              {{ h.build_nav_main(
+              ('home', _('Home')))}}
+                {{super()}}
+              {% endblock %}
+            </ul>
+          </nav>
+        {% endblock %}
       </div>
     </div>
   </div>
