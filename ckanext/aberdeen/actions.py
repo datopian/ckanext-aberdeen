@@ -210,7 +210,7 @@ def inactive_users(context, data_dict):
         timestamp = datetime.strptime(
             user_info[0]['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
 
-        if timestamp < datetime.today() - timedelta(days=0):
+        if timestamp < datetime.today() - timedelta(days=365):
             user['last_activity'] = user_info[0]['timestamp']
             inactive_users.append(user)
 
