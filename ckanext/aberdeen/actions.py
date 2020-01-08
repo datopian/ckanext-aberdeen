@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 import threading
 import sqlalchemy as sqla
+from pylons import config
 
 import ckan.lib.jobs as jobs
 import ckan.logic
@@ -198,19 +199,38 @@ def inactive_users(context, data_dict):
     # Limit the user activity results to the most recent event
     data_dict['limit'] = 1
 
+    # Default to 365 days if days isn't specified in the call
+    days = data_dict.get('days', 365)
+
+    # Check for non integers passed to days
+    try:
+        days = int(days)
+    except ValueError:
+        toolkit.abort(
+            400, _('"{}" is an invalid option for days.'.format(days)))
+
     # Use threading to speed up the inactive user collection
     def user_activity_threads(user, inactive_users):
         data_dict['id'] = user['id']
         user_info = ckan.logic.get_action(
             'user_activity_list')(context, data_dict)
+        inactive_limit = datetime.today() - timedelta(days=days)
 
+        # If the user has no activity, and the account was created before
+        # inactive_limit, we add the user to our list
         if not user_info:
+            creation_date = datetime.strptime(
+                user['created'], '%Y-%m-%dT%H:%M:%S.%f')
+
+            if creation_date < inactive_limit:
+                inactive_users.append(user)
+
             return
 
         timestamp = datetime.strptime(
             user_info[0]['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
 
-        if timestamp < datetime.today() - timedelta(days=365):
+        if timestamp < inactive_limit:
             user['last_activity'] = user_info[0]['timestamp']
             inactive_users.append(user)
 
@@ -233,18 +253,68 @@ def send_inactive_users_email(context, data_dict):
     '''Sends the inactive users list to all site system administrators'''
 
     user_list = ckan.logic.get_action('user_list')(context, data_dict)
-    admin_email_list = [
-        user['email'] for user in user_list if user['sysadmin'] is True]
-
+    admin_list = [user for user in user_list if user.get('sysadmin') is True]
     inactive_users = toolkit.get_action('inactive_users')(context, data_dict)
+    number_of_users = len(inactive_users)
 
-    # Format the inactive users list for better readability in an email
-    inactive_users = '\n\n'.join(
-        '\n'.join(info + ': ' + str(user_info[info]) for info in user_info)
-        for user_info in inactive_users)
+    if not inactive_users:
+        inactive_users = \
+            'Hi {},\n\nThere are no inactive users to report this week.'
+    else:
+        inactive_users = \
+            'Hi {},\n\nThere are currently {} inactive users:\n\n'
 
-    for admin_email in admin_email_list:
-        if admin_email:
+        # Format the inactive users list for better readability in an email
+        for user in user_list:
+            display_name = user.get('display_name')
+            name = user.get('name')
+            profile_url = '{}/user/{}'.format(
+                config.get('ckan.site_url'), name)
+            id = user.get('id')
+            last_activity = user.get('last_activity')
+            created = user.get('created')
+            full_name = user.get('fullname')
+            email_address = user.get('email')
+            sysadmin = user.get('sysadmin')
+            state = user.get('state')
+
+            inactive_users += """
+            Display name: {}
+            Profile URL: {}
+            ID: {}
+            Last activity date: {}
+            Account creation date: {}
+            Username: {}
+            Full name: {}
+            Email address: {}
+            System administrator: {}
+            State: {}\n
+            """.format(
+                display_name,
+                profile_url,
+                id,
+                last_activity,
+                created,
+                name,
+                full_name,
+                email_address,
+                sysadmin,
+                state)
+
+    for admin in admin_list:
+        email = admin.get('email')
+
+        # Check names available - since some of these might be None,
+        # we go in order of preference
+        name_options = [
+            name for name in [
+                admin.get('fullname'),
+                admin.get('display_name'),
+                admin.get('name')]
+            if name not in [None, '']]
+
+        if email:
             mailer.mail_recipient(
-                'System administrator', admin_email,
-                'Inactive users list - weekly update', inactive_users)
+                name_options[0], email,
+                'Inactive users list - weekly update',
+                inactive_users.format(name_options[0], number_of_users))
