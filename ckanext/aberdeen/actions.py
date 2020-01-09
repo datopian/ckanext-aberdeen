@@ -4,6 +4,9 @@ import threading
 import sqlalchemy as sqla
 from pylons import config
 
+import json
+import requests
+
 import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
@@ -223,6 +226,7 @@ def inactive_users(context, data_dict):
                 user['created'], '%Y-%m-%dT%H:%M:%S.%f')
 
             if creation_date < inactive_limit:
+                user['last_activity'] = user['created']
                 inactive_users.append(user)
 
             return
@@ -252,54 +256,42 @@ def inactive_users(context, data_dict):
 def send_inactive_users_email(context, data_dict):
     '''Sends the inactive users list to all site system administrators'''
 
+    # Remove hours, minutes, and seconds from dates
+    def format_dates(date):
+        date = datetime.strptime(
+            date, '%Y-%m-%dT%H:%M:%S.%f')
+        date = '{}-{}-{}'.format(
+            date.year, date.month, date.day)
+
+        return date
+
     user_list = ckan.logic.get_action('user_list')(context, data_dict)
     admin_list = [user for user in user_list if user.get('sysadmin') is True]
-    inactive_users = toolkit.get_action('inactive_users')(context, data_dict)
+    inactive_users = ckan.logic.get_action(
+        'inactive_users')(context, data_dict)
     number_of_users = len(inactive_users)
 
     if not inactive_users:
-        inactive_users = \
-            'Hi {},\n\nThere are no inactive users to report this week.'
+        inactive_users_email = \
+            'Hello {},\n\nThere are no inactive users to report this week.'
     else:
-        inactive_users = \
-            'Hi {},\n\nThere are currently {} inactive users:\n\n'
+        inactive_users_email = \
+            'Hello {},\n\nThere are currently {} inactive users:\n\n'
 
         # Format the inactive users list for better readability in an email
-        for user in user_list:
-            display_name = user.get('display_name')
-            name = user.get('name')
-            profile_url = '{}/user/{}'.format(
-                config.get('ckan.site_url'), name)
-            id = user.get('id')
-            last_activity = user.get('last_activity')
-            created = user.get('created')
-            full_name = user.get('fullname')
-            email_address = user.get('email')
-            sysadmin = user.get('sysadmin')
-            state = user.get('state')
-
-            inactive_users += """
-            Display name: {}
+        for user in inactive_users:
+            inactive_users_email += """
             Profile URL: {}
-            ID: {}
             Last activity date: {}
             Account creation date: {}
-            Username: {}
             Full name: {}
-            Email address: {}
-            System administrator: {}
-            State: {}\n
+            Email address: {}\n
             """.format(
-                display_name,
-                profile_url,
-                id,
-                last_activity,
-                created,
-                name,
-                full_name,
-                email_address,
-                sysadmin,
-                state)
+                '{}/user/{}'.format(config.get('ckan.site_url'), user['name']),
+                format_dates(user['last_activity']),
+                format_dates(user['created']),
+                user['fullname'],
+                user['email'])
 
     for admin in admin_list:
         email = admin.get('email')
@@ -317,4 +309,4 @@ def send_inactive_users_email(context, data_dict):
             mailer.mail_recipient(
                 name_options[0], email,
                 'Inactive users list - weekly update',
-                inactive_users.format(name_options[0], number_of_users))
+                inactive_users_email.format(name_options[0], number_of_users))
