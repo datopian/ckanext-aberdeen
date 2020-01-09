@@ -266,7 +266,7 @@ def send_inactive_users_email(context, data_dict):
         return date
 
     user_list = ckan.logic.get_action('user_list')(context, data_dict)
-    admin_list = [user for user in user_list if user.get('sysadmin') is True]
+    admin_list = [user for user in user_list if user['sysadmin'] is True]
     inactive_users = ckan.logic.get_action(
         'inactive_users')(context, data_dict)
     number_of_users = len(inactive_users)
@@ -294,15 +294,15 @@ def send_inactive_users_email(context, data_dict):
                 user['email'])
 
     for admin in admin_list:
-        email = admin.get('email')
+        email = admin['email']
 
         # Check names available - since some of these might be None,
         # we go in order of preference
         name_options = [
             name for name in [
-                admin.get('fullname'),
-                admin.get('display_name'),
-                admin.get('name')]
+                admin['fullname'],
+                admin['display_name'],
+                admin['name']]
             if name not in [None, '']]
 
         if email:
