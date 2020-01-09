@@ -202,22 +202,24 @@ def inactive_users(context, data_dict):
     # Limit the user activity results to the most recent event
     data_dict['limit'] = 1
 
-    # Default to 365 days if days isn't specified in the call
-    days = data_dict.get('days', 365)
+    # Default to 365 days if days isn't specified in the call or config file
+    days_inactive = data_dict.get(
+        'days_inactive', config.get('ckanext.aberdeen.days_inactive', 365))
 
     # Check for non integers passed to days
     try:
-        days = int(days)
+        days_inactive = int(days_inactive)
     except ValueError:
         toolkit.abort(
-            400, _('"{}" is an invalid option for days.'.format(days)))
+            400, _('"{}" is an invalid option for days.'.format(
+                days_inactive)))
 
     # Use threading to speed up the inactive user collection
     def user_activity_threads(user, inactive_users):
         data_dict['id'] = user['id']
         user_info = ckan.logic.get_action(
             'user_activity_list')(context, data_dict)
-        inactive_limit = datetime.today() - timedelta(days=days)
+        inactive_limit = datetime.today() - timedelta(days=days_inactive)
 
         # If the user has no activity, and the account was created before
         # inactive_limit, we add the user to our list
