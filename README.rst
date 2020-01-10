@@ -82,6 +82,11 @@ Document any optional config settings here. For example::
     # (optional, default: 24).
     ckanext.aberdeen.some_setting = some_default_value
 
+For configuring the time range for the inactive users list::
+
+    # The number of days for the range
+    # (optional, default: 365)
+    ckanext.aberdeen.days_inactive = integer_value_of_days
 
 ------------------------
 Development Installation
