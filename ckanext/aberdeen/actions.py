@@ -4,9 +4,6 @@ import threading
 import sqlalchemy as sqla
 from pylons import config
 
-import json
-import requests
-
 import ckan.lib.jobs as jobs
 import ckan.logic
 import ckan.logic.action
@@ -209,7 +206,7 @@ def inactive_users(context, data_dict):
     # Check for non integers passed to days
     try:
         days_inactive = int(days_inactive)
-    except ValueError:
+    except (ValueError, TypeError):
         toolkit.abort(
             400, _('"{}" is an invalid option for days.'.format(
                 days_inactive)))
