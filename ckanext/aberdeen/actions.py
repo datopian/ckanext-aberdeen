@@ -1,6 +1,8 @@
 import logging
-
+from datetime import datetime, timedelta
+import threading
 import sqlalchemy as sqla
+from pylons import config
 
 import ckan.lib.jobs as jobs
 import ckan.logic
@@ -8,6 +10,8 @@ import ckan.logic.action
 import ckan.plugins as plugins
 import ckan.lib.dictization.model_dictize as model_dictize
 from ckan import authz
+import ckan.plugins.toolkit as toolkit
+from ckan.lib import mailer
 
 from ckan.common import _
 
@@ -179,3 +183,129 @@ def group_purge(context, data_dict):
 
 def organization_purge(context, data_dict):
     return _group_or_org_purge(context, data_dict, is_org=True)
+
+
+@toolkit.side_effect_free
+def inactive_users(context, data_dict):
+    '''Returns a list of users that have been inactive for the last year'''
+
+    if not authz.is_sysadmin(toolkit.c.user):
+        toolkit.abort(403, _('You are not authorized to access this list'))
+
+    user_list = ckan.logic.get_action('user_list')(context, data_dict)
+    inactive_users = []
+    threads = []
+
+    # Limit the user activity results to the most recent event
+    data_dict['limit'] = 1
+
+    # Default to 365 days if days isn't specified in the call or config file
+    days_inactive = data_dict.get(
+        'days_inactive', config.get('ckanext.aberdeen.days_inactive', 365))
+
+    # Check for non integers passed to days
+    try:
+        days_inactive = int(days_inactive)
+    except (ValueError, TypeError):
+        toolkit.abort(
+            400, _('"{}" is an invalid option for days.'.format(
+                days_inactive)))
+
+    # Use threading to speed up the inactive user collection
+    def user_activity_threads(user, inactive_users):
+        data_dict['id'] = user['id']
+        user_info = ckan.logic.get_action(
+            'user_activity_list')(context, data_dict)
+        inactive_limit = datetime.today() - timedelta(days=days_inactive)
+
+        # If the user has no activity, and the account was created before
+        # inactive_limit, we add the user to our list
+        if not user_info:
+            creation_date = datetime.strptime(
+                user['created'], '%Y-%m-%dT%H:%M:%S.%f')
+
+            if creation_date < inactive_limit:
+                user['last_activity'] = user['created']
+                inactive_users.append(user)
+
+            return
+
+        timestamp = datetime.strptime(
+            user_info[0]['timestamp'], '%Y-%m-%dT%H:%M:%S.%f')
+
+        if timestamp < inactive_limit:
+            user['last_activity'] = user_info[0]['timestamp']
+            inactive_users.append(user)
+
+        return inactive_users
+
+    for user in user_list:
+        thread = threading.Thread(
+            target=user_activity_threads, args=(user, inactive_users))
+        threads.append(thread)
+        thread.start()
+
+    for user, thread in enumerate(threads):
+        thread.join()
+
+    return inactive_users
+
+
+@toolkit.side_effect_free
+def send_inactive_users_email(context, data_dict):
+    '''Sends the inactive users list to all site system administrators'''
+
+    # Remove hours, minutes, and seconds from dates
+    def format_dates(date):
+        date = datetime.strptime(
+            date, '%Y-%m-%dT%H:%M:%S.%f')
+        date = '{}-{}-{}'.format(
+            date.year, date.month, date.day)
+
+        return date
+
+    user_list = ckan.logic.get_action('user_list')(context, data_dict)
+    admin_list = [user for user in user_list if user['sysadmin'] is True]
+    inactive_users = ckan.logic.get_action(
+        'inactive_users')(context, data_dict)
+    number_of_users = len(inactive_users)
+
+    if not inactive_users:
+        inactive_users_email = \
+            'Hello {},\n\nThere are no inactive users to report this week.'
+    else:
+        inactive_users_email = \
+            'Hello {},\n\nThere are currently {} inactive users:\n\n'
+
+        # Format the inactive users list for better readability in an email
+        for user in inactive_users:
+            inactive_users_email += """
+            Profile URL: {}
+            Last activity date: {}
+            Account creation date: {}
+            Full name: {}
+            Email address: {}\n
+            """.format(
+                '{}/user/{}'.format(config.get('ckan.site_url'), user['name']),
+                format_dates(user['last_activity']),
+                format_dates(user['created']),
+                user['fullname'],
+                user['email'])
+
+    for admin in admin_list:
+        email = admin['email']
+
+        # Check names available - since some of these might be None,
+        # we go in order of preference
+        name_options = [
+            name for name in [
+                admin['fullname'],
+                admin['display_name'],
+                admin['name']]
+            if name not in [None, '']]
+
+        if email:
+            mailer.mail_recipient(
+                name_options[0], email,
+                'Inactive users list - weekly update',
+                inactive_users_email.format(name_options[0], number_of_users))
