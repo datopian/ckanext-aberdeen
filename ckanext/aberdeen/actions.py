@@ -240,13 +240,8 @@ def inactive_users(context, data_dict):
         return inactive_users
 
     for user in user_list:
-        thread = threading.Thread(
-            target=user_activity_threads, args=(user, inactive_users))
-        threads.append(thread)
-        thread.start()
-
-    for user, thread in enumerate(threads):
-        thread.join()
+        
+        user_activity_threads(user, inactive_users)
 
     return inactive_users
 
