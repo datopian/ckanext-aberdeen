@@ -240,13 +240,19 @@ def inactive_users(context, data_dict):
         return inactive_users
 
     for user in user_list:
+        
+        user_activity_threads(user, inactive_users)
+
+    """ 
+    Comment out the code for threading, causing problems on portal
         thread = threading.Thread(
             target=user_activity_threads, args=(user, inactive_users))
         threads.append(thread)
         thread.start()
 
     for user, thread in enumerate(threads):
-        thread.join()
+        thread.join() 
+    """
 
     return inactive_users
 
